@@ -5,7 +5,7 @@ int iiiiiiiiiiiiiiiii = 0;
 int open_file(char *pathfile) {
     int fd = open(pathfile, O_RDONLY);
     if (fd == -1) {
-        puts("Can't open file");
+        ft_putstr_fd("Can't open file", 2);
         return -1;
     }
     return fd;
@@ -17,14 +17,32 @@ int get_file_size(int fd) {
     return st.st_size;
 }
 
-char *uint_dup(uint8_t *tab) {
-    int i = 0;
-    for (; tab[i]; i++) {
-
+int find_symtab(uint8_t *file, const Elf64_Ehdr *eHdr, const char *shStrTab_data) {
+    for (int i = 0; i < eHdr->e_shnum; i++) {
+        const Elf64_Shdr *sHdr = (Elf64_Shdr *)(file + eHdr->e_shoff + (64 * i));
+        const char *section_name = shStrTab_data + sHdr->sh_name;
+        printf(" [%2d] : %s\n", i, section_name);
+        if (ft_strncmp(section_name, ".symtab", ft_strlen(".symtab")) == 0) {
+            printf("%s found at index %d\n", section_name, i);
+            return i;
+        }
     }
-    char *res = malloc(i + 1);
-    ft_memcpy(res, tab, i+1);
-    return res;
+    return -1;
+}
+
+void print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
+
+    const Elf64_Shdr *symTab = (Elf64_Shdr *)(file + eHdr->e_shoff + (64 * symtabNdx));
+    
+    const Elf64_Sym *effectiveSymTab = (Elf64_Sym *)(file + symTab->sh_offset);
+
+    printf("number of symbols : 0x%08lx\n", effectiveSymTab->st_size / sizeof(Elf64_Sym));
+
+    // write(1, &file[symTab_data], 500);
+
+    // for (int i = 0; ;i++) {
+
+    // }
 }
 
 int ft_nm(char *filepath) {
@@ -72,11 +90,16 @@ int ft_nm(char *filepath) {
 
     const char *shStrTab_data = (const char *)(file + shStrTab->sh_offset);
 
-    for (int i = 0; i < eHdr->e_shnum; i++) {
-        const Elf64_Shdr *sHdr = (Elf64_Shdr *)(file + eHdr->e_shoff + (64 * i));
-        const char *section_name = shStrTab_data + sHdr->sh_name;
-        printf(" [%2d] Section name : %s\n", i, section_name);
+
+    int symtabNdx = find_symtab(file, eHdr, shStrTab_data);
+    if (symtabNdx == -1) {
+        ft_putstr_fd("Can't find .symtab in file", 2);
+        munmap(file, file_size);
+        exit(1);
     }
+    printf("symtab ndx : %d\n", symtabNdx);
+
+    print_all_symbols(file, eHdr, symtabNdx);
 
     munmap(file, file_size);
     return 0;
