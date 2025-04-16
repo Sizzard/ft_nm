@@ -6,10 +6,6 @@ LIB = libft/libft.a
 
 all: $(NAME)
 
-debug:
-	$(eval CFLAGS += -g3)
-	make all
-
 $(NAME): $(OBJ) $(LIB)
 	cc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB)
 
