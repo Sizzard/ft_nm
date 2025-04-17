@@ -2,6 +2,7 @@
     "files.associations": {
         "typeinfo": "c",
         "type_traits": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "libft.h": "c"
     }
 }

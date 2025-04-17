@@ -1,19 +1,19 @@
 NAME = ft_nm
 CFLAGS = -Wall -Wextra -Werror
-SRC = main.c
+SRC = main.c src/utils.c src/64_files.c src/32_files.c
 OBJ = $(SRC:.c=.o)
 LIB = libft/libft.a
 
 all: $(NAME)
 
 $(NAME): $(OBJ) $(LIB)
-	cc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB)
+	gcc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB)
 
 $(LIB):
 	make -C libft
 
-%.o:%.c
-	cc $(CFLAGS) -c -o $@ $<
+%.o:%.c headers/ft_nm.h
+	gcc $(CFLAGS) -c -o $@ $<
 
 clean: 
 	make clean -C libft

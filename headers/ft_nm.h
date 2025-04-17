@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <elf.h>
 #include <stdbool.h>
+#include <errno.h>
 #include "../libft/libft.h"
 
 #define BLK "\e[0;30m"
@@ -18,13 +19,50 @@
 #define CYN "\e[0;36m"
 #define WHT "\e[0;37m"
 
+#define MAX_SYMBOLS 4096
 
-typedef struct s_symbol {
-    const Elf64_Sym *symTab;
-    char name[255];
-} t_symbol;
+enum {
+    NO_PRINT,
+    NO_VALUE,
+    PRINT,
+};
 
-int open_file(char *pathfile);
-int get_file_size(int fd);
 
-int ft_nm(char *filepath);
+typedef struct s_symbol_32 {
+    const Elf32_Sym     *symTab;
+    char                name[255];
+} t_symbol_32;
+
+typedef struct s_symbol_64 {
+    const Elf64_Sym     *symTab;
+    char                name[255];
+} t_symbol_64;
+
+extern int  file_size;
+
+int         get_file_size(int fd);
+
+void        print_file_content(uint8_t *file);
+bool        is_valid_elf_file(uint8_t *file);
+void    	print_hexa(unsigned long nbr, int fd);
+int         get_number_len(unsigned int nb);
+int         str_comp(char *s1, char *s2);
+void        print_value(const unsigned int value);
+uint8_t     parse_letter(const unsigned char letter);
+char        get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_Sym *sym);
+void        print_symbol(const uint8_t *file, const Elf64_Ehdr *eHdr, const Elf64_Sym *sym, const t_symbol_64 symbol);
+bool        is_sorted(t_symbol_64 symbols[], int nb_entry);
+void        sort_symbols_tab(t_symbol_64 symbols[], int nb_entry);
+
+bool        is_sorted_32(t_symbol_32 symbols[], int nb_entry);
+void        sort_symbols_tab_32(t_symbol_32 symbols[], int nb_entry);
+int         find_symtab_32(uint8_t *file, const Elf32_Ehdr *eHdr, const char *shStrTab_data);
+char        get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf32_Sym *sym);
+void        print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol);
+bool        print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx);
+
+
+bool        handle_32_files(uint8_t *file);
+bool        handle_64_files(uint8_t *file);
+
+int         ft_nm(char *filepath);
