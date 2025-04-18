@@ -4,6 +4,7 @@ int iiiiiiiiiiiiiiiii = 0;
 int ___data_start = 0;
 
 int file_size = 0;
+t_nm_args nm_args;
 
 int ft_nm(char *filepath) {
     uint8_t *file = NULL;
@@ -49,9 +50,25 @@ int ft_nm(char *filepath) {
     return return_value;
 }
 
+void print_opts() {
+    printf("%d\n", nm_args.g);
+    printf("%d\n", nm_args.u);
+    printf("%d\n", nm_args.r);
+    printf("%d\n", nm_args.p);
+}
+
 int main(int ac, char **av) {
 
     int return_value = 0;
+
+
+    if (init_nm_args(ac, av) == 1) {
+        ft_putstr_fd("Can't parse arguments\n", 2);
+        free_args(nm_args.args);
+        return 1;
+    };
+
+    print_opts();
 
     if (ac == 1) {
         return_value = ft_nm("a.out");
@@ -67,6 +84,8 @@ int main(int ac, char **av) {
             }
         }
     }
+
+    free_args(nm_args.args);
 
     return return_value;
 }

@@ -19,8 +19,6 @@
 #define CYN "\e[0;36m"
 #define WHT "\e[0;37m"
 
-#define MAX_SYMBOLS 4096
-
 enum {
     NO_PRINT,
     NO_VALUE,
@@ -38,11 +36,22 @@ typedef struct s_symbol_64 {
     char                *name;
 } t_symbol_64;
 
+typedef struct s_nm_args {
+    bool g;
+    bool u;
+    bool r;
+    bool p;
+    t_argparse *args;
+} t_nm_args;
+
 extern int  file_size;
+extern t_nm_args nm_args;
 
 int         get_file_size(int fd);
 
 // void        print_file_content(uint8_t *file);
+bool        init_nm_args(int ac, char **av);
+
 bool        is_valid_elf_file(uint8_t *file);
 void    	print_hexa(unsigned long nbr, int fd);
 int         get_number_len(unsigned int nb);

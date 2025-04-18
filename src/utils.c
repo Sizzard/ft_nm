@@ -138,3 +138,40 @@ bool is_within_file_range(const uint8_t *file, void *ptr) {
     }
     return false;
 }
+
+bool init_nm_args(int ac, char **av) {
+    t_argparse *args = ft_argparse(ac,av);
+
+    nm_args.g = false;
+    nm_args.u = false;
+    nm_args.r = false;
+    nm_args.p = false;
+    nm_args.args = args;
+
+    if (args == NULL) {
+        return 1;
+    }
+    for(t_option *opt = args->options; opt; opt = opt->next) {
+        printf("%d\n", opt->opt);
+        switch (opt->opt)
+        {
+        case 'g':
+            nm_args.g = true;
+            break;
+        case 'u':
+            nm_args.u = true;
+            break;
+        case 'r':
+            nm_args.r = true;
+            break;
+        case 'p':
+            nm_args.p = true;
+            break;
+        default:
+            ft_printfd(2, "Invalid option -%c : ", opt->opt);
+            return 1;
+            break;
+        }
+    }
+    return 0;
+}
