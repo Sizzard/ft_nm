@@ -68,7 +68,7 @@ char get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_
 
     const Elf64_Shdr *sec = (Elf64_Shdr *)(file + eHdr->e_shoff + (sizeof(Elf64_Shdr) * sym->st_shndx));
     if (!is_within_file_range(file, (void *)sec)) {
-            return -1;
+            return '?';
     }
     if (sec->sh_type == SHT_NOBITS)
         return ELF64_ST_BIND(sym->st_info) == STB_LOCAL ? 'b' : 'B';
@@ -86,10 +86,6 @@ char get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_
 void print_symbol(const uint8_t *file, const Elf64_Ehdr *eHdr, const Elf64_Sym *sym, const t_symbol_64 symbol) {
 
     char letter = get_symbol_letter(file, eHdr, sym);
-
-    if (letter == -1) {
-        letter = '?';
-    }
 
     uint8_t rendering = parse_letter(letter);  
 
@@ -111,7 +107,7 @@ bool print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
     }
     const Elf64_Shdr *symTab = (Elf64_Shdr *)(file + symtab_offset);
     if (!is_within_file_range(file, (void *)symTab)) {
-        ft_putstr_fd("Error while parsing file\n", 1);
+        ft_putstr_fd("Error while parsing file\n", 2);
         return 1;
     }
 
@@ -130,26 +126,30 @@ bool print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
     }
     const char *strtab = (const char *)(file + strTab_section->sh_offset);
 
-
-
-    t_symbol_64 symbols[MAX_SYMBOLS];
+    t_symbol_64 *symbols = malloc(symTab->sh_size / symTab->sh_entsize * sizeof(t_symbol_64));
+    if (!symbols) {
+        ft_putstr_fd("Ran out of memory\n", 2);
+        return 1;
+    }
 
     // printf("%ld %ld\n", symTab->sh_size, sizeof(t_symbol_64));
 
-    ft_memset(symbols, 0, MAX_SYMBOLS * sizeof(t_symbol_64));
+    ft_memset(symbols, 0, symTab->sh_size / symTab->sh_entsize * sizeof(t_symbol_64));
 
     for (long unsigned int offset = 0, counter = 0; offset < symTab->sh_size; offset += 24, counter++) {
         const Elf64_Sym *effectiveSymTab = (Elf64_Sym *)(file + symTab->sh_offset + offset);
         if (!is_within_file_range(file, (void *)effectiveSymTab)) {
-            ft_putstr_fd("Error while parsing file\n", 1);
+            ft_putstr_fd("Error while parsing file\n", 2);
+            free(symbols);
             return 1;
         }
         const char *name = strtab + effectiveSymTab->st_name;
         if (!is_within_file_range(file, (void *)name)) {
-            ft_putstr_fd("Error while parsing file\n", 1);
+            ft_putstr_fd("Error while parsing file\n", 2);
+            free(symbols);
             return 1;
         }
-        ft_strlcpy(symbols[counter].name, name, ft_strlen(name) + 1);
+        symbols[counter].name = (char *)name;
         symbols[counter].symTab = effectiveSymTab;
         // print_symbol(file, eHdr, effectiveSymTab, symbols[counter]);
         // print_sym(effectiveSymTab);
@@ -157,12 +157,13 @@ bool print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
 
     sort_symbols_tab(symbols, symTab->sh_size / symTab->sh_entsize);
 
-    for (int i = 0; i < MAX_SYMBOLS; i++) {
-        if (symbols[i].name[0] != 0) {
+    for (int i = 0; i < (int)(symTab->sh_size / symTab->sh_entsize); i++) {
+        if (symbols[i].name && symbols[i].name[0] != 0) {
             print_symbol(file, eHdr, symbols[i].symTab, symbols[i]);
         }
     }
     // printf("global %d, local %d, weak %d\n", STB_GLOBAL, STB_LOCAL, STB_WEAK);
+    free(symbols);
     return 0;
 
 }
@@ -170,7 +171,7 @@ bool print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
 bool handle_64_files(uint8_t *file) {
     const Elf64_Ehdr *eHdr = (Elf64_Ehdr *)file;
     if (!is_within_file_range(file, (void *)eHdr)) {
-        ft_putstr_fd("Error while parsing file\n", 1);
+        ft_putstr_fd("Error while parsing file\n", 2);
         return 1;
     }
 
@@ -180,19 +181,19 @@ bool handle_64_files(uint8_t *file) {
 
     const Elf64_Shdr *shStrTab = (Elf64_Shdr *)&file[eHdr->e_shoff + (sizeof(Elf64_Shdr) * eHdr->e_shstrndx)];
     if (!is_within_file_range(file, (void *)shStrTab)) {
-        ft_putstr_fd("Error while parsing file\n", 1);
+        ft_putstr_fd("Error while parsing file\n", 2);
         return 1;
     }
 
     const char *shStrTab_data = (const char *)(file + shStrTab->sh_offset);
     if (!is_within_file_range(file, (void *)shStrTab_data)) {
-        ft_putstr_fd("Error while parsing file\n", 1);
+        ft_putstr_fd("Error while parsing file\n", 2);
         return 1;
     }
 
     int symtabNdx = find_symtab(file, eHdr, shStrTab_data);
     if (symtabNdx == -1) {
-        ft_putstr_fd("Error while parsing file\n", 1);
+        ft_putstr_fd("Error while parsing file\n", 2);
         return 1;
     }
     // printf("symtab ndx : %d\n", symtabNdx);

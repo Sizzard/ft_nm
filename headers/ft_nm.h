@@ -30,12 +30,12 @@ enum {
 
 typedef struct s_symbol_32 {
     const Elf32_Sym     *symTab;
-    char                name[256];
+    char                *name;
 } t_symbol_32;
 
 typedef struct s_symbol_64 {
     const Elf64_Sym     *symTab;
-    char                name[256];
+    char                *name;
 } t_symbol_64;
 
 extern int  file_size;
