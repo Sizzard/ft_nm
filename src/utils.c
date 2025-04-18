@@ -111,8 +111,8 @@ int str_comp(char *s1, char *s2) {
 
     while (s1[i] && s2[j]) {
 
-        while (!ft_isalpha(s1[i])) i++;
-        while (!ft_isalpha(s2[j])) j++;
+        while (!ft_isalnum(s1[i])) i++;
+        while (!ft_isalnum(s2[j])) j++;
 
         char c1 = ft_tolower((unsigned char)s1[i]);
         char c2 = ft_tolower((unsigned char)s2[j]);

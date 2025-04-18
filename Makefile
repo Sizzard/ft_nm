@@ -1,5 +1,5 @@
 NAME = ft_nm
-CFLAGS = -Wall -Wextra -Werror -g
+CFLAGS = -Wall -Wextra -Werror
 SRC = main.c src/utils.c src/64_files.c src/32_files.c
 OBJ = $(SRC:.c=.o)
 LIB = libft/libft.a

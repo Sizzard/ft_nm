@@ -105,11 +105,11 @@ void print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sy
     uint8_t rendering = parse_letter(letter);  
 
     if (rendering == PRINT) {
-        print_value(symbol.symTab->st_value);
+        print_value_32(symbol.symTab->st_value);
         ft_printfd(1, " %c %s\n", letter, symbol.name);
     }
     else if (rendering == NO_VALUE) {
-        ft_printfd(1, "                 %c %s\n", letter, symbol.name);
+        ft_printfd(1, "         %c %s\n", letter, symbol.name);
     }
 }
 
