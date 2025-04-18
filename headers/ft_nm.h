@@ -30,19 +30,19 @@ enum {
 
 typedef struct s_symbol_32 {
     const Elf32_Sym     *symTab;
-    char                name[255];
+    char                name[256];
 } t_symbol_32;
 
 typedef struct s_symbol_64 {
     const Elf64_Sym     *symTab;
-    char                name[255];
+    char                name[256];
 } t_symbol_64;
 
 extern int  file_size;
 
 int         get_file_size(int fd);
 
-void        print_file_content(uint8_t *file);
+// void        print_file_content(uint8_t *file);
 bool        is_valid_elf_file(uint8_t *file);
 void    	print_hexa(unsigned long nbr, int fd);
 int         get_number_len(unsigned int nb);
@@ -61,6 +61,7 @@ char        get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,co
 void        print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol);
 bool        print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx);
 
+bool        is_within_file_range(const uint8_t *file, void *ptr);
 
 bool        handle_32_files(uint8_t *file);
 bool        handle_64_files(uint8_t *file);

@@ -3,6 +3,7 @@
         "typeinfo": "c",
         "type_traits": "c",
         "stdint.h": "c",
-        "libft.h": "c"
+        "libft.h": "c",
+        "elf.h": "c"
     }
 }
