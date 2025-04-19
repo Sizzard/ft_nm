@@ -50,13 +50,13 @@ int ft_nm(char *filepath) {
     return return_value;
 }
 
-void print_opts() {
-    printf("%d\n", nm_args.a);
-    printf("%d\n", nm_args.g);
-    printf("%d\n", nm_args.u);
-    printf("%d\n", nm_args.r);
-    printf("%d\n", nm_args.p);
-}
+// void print_opts() {
+//     printf("%d\n", nm_args.a);
+//     printf("%d\n", nm_args.g);
+//     printf("%d\n", nm_args.u);
+//     printf("%d\n", nm_args.r);
+//     printf("%d\n", nm_args.p);
+// }
 
 int main(int ac, char **av) {
 
