@@ -17,7 +17,7 @@ $(LIB):
 
 clean: 
 	make clean -C libft
-	rm -f $(OBJ)
+	rm -f $(OBJ) my_nm_res real_nm_res tester.tmp
 
 fclean: clean 
 	make fclean -C libft

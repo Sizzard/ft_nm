@@ -37,6 +37,7 @@ typedef struct s_symbol_64 {
 } t_symbol_64;
 
 typedef struct s_nm_args {
+    bool a;
     bool g;
     bool u;
     bool r;
@@ -50,6 +51,8 @@ extern t_nm_args nm_args;
 int         get_file_size(int fd);
 
 // void        print_file_content(uint8_t *file);
+void        print_sym(const Elf64_Sym *symTab);
+
 bool        init_nm_args(int ac, char **av);
 
 bool        is_valid_elf_file(uint8_t *file);

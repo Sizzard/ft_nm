@@ -92,13 +92,19 @@ void print_value(const unsigned int value) {
 }
 
 uint8_t parse_letter(const unsigned char letter) {
-    if (letter == 'A') {
+    if (letter == 'a' && nm_args.a == false) {
         return NO_PRINT;
     }
     else if (letter == 'U' || letter == 'w') {
         return NO_VALUE;
     }
-    return PRINT;
+    else if ((letter == 'r' || letter == 'b' || letter == 't' || letter == 'd') && nm_args.g == true) {
+        return NO_PRINT;
+    }
+    else if (nm_args.u == false) {
+        return PRINT;
+    }
+    return NO_PRINT;
 }
 
 
@@ -142,6 +148,7 @@ bool is_within_file_range(const uint8_t *file, void *ptr) {
 bool init_nm_args(int ac, char **av) {
     t_argparse *args = ft_argparse(ac,av);
 
+    nm_args.a = false;
     nm_args.g = false;
     nm_args.u = false;
     nm_args.r = false;
@@ -152,9 +159,11 @@ bool init_nm_args(int ac, char **av) {
         return 1;
     }
     for(t_option *opt = args->options; opt; opt = opt->next) {
-        printf("%d\n", opt->opt);
         switch (opt->opt)
         {
+        case 'a':
+            nm_args.a = true;
+            break;
         case 'g':
             nm_args.g = true;
             break;

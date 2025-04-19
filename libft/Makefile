@@ -9,7 +9,7 @@ SRC = ft_bzero.c ft_putnbr_fd.c ft_split.c ft_striteri.c ft_putendl_fd.c ft_puts
 	ft_lstnew.c ft_lstiter.c ft_lstmap.c ft_lstclear.c ft_lstadd_front.c ft_lstsize.c \
 	ft_lstlast.c ft_lstadd_back.c ft_lstdelone.c ft_printfd.c ft_annexes.c \
 	get_next_line.c get_next_line_utils.c \
-	lst.c argparse.c
+	arg_lst.c argparse.c
 
 NAME = libft.a
 OBJETS = $(SRC:.c=.o)

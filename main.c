@@ -51,6 +51,7 @@ int ft_nm(char *filepath) {
 }
 
 void print_opts() {
+    printf("%d\n", nm_args.a);
     printf("%d\n", nm_args.g);
     printf("%d\n", nm_args.u);
     printf("%d\n", nm_args.r);
@@ -68,17 +69,17 @@ int main(int ac, char **av) {
         return 1;
     };
 
-    print_opts();
+    // print_opts();
 
-    if (ac == 1) {
+    if (ac == 1 || len_arg_lst(nm_args.args->arguments) == 0) {
         return_value = ft_nm("a.out");
     }
     else {
-        for(int i = 1; av[i]; i++) {
-            if (ac > 2) {
-                ft_printfd(1, "\n%s:\n", av[i]);
+        for(t_argument *tmp_arg = nm_args.args->arguments; tmp_arg; tmp_arg = tmp_arg->next) {
+            if (len_arg_lst(nm_args.args->arguments) > 1) {
+                ft_printfd(1, "\n%s:\n", tmp_arg->arg);
             }
-            const int tmp_value = ft_nm(av[i]);
+            const int tmp_value = ft_nm(tmp_arg->arg);
             if (tmp_value != 0) {
                 return_value = tmp_value;
             }

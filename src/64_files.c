@@ -26,6 +26,32 @@ void sort_symbols_tab(t_symbol_64 symbols[], int nb_entry) {
     }
 }
 
+bool is_reverse_sorted(t_symbol_64 symbols[], int nb_entry) {
+    for (int i = 1; i < nb_entry; i++) {
+        if (str_comp(symbols[i - 1].name, symbols[i].name) < 0)
+            return false;
+    }
+    return true;
+}
+
+void reverse_sort_symbols_tab(t_symbol_64 symbols[], int nb_entry) {
+
+    int i = 1;
+    while (!is_reverse_sorted(symbols, nb_entry)) {
+        if (i == nb_entry) {
+            i = 1;
+        }
+
+        if (str_comp(symbols[i - 1].name, symbols[i].name) < 0) {
+            t_symbol_64 tmp = symbols[i - 1];
+            symbols[i - 1] = symbols[i];
+            symbols[i] = tmp;
+        }
+
+        i++;
+    }
+}
+
 
 int find_symtab(uint8_t *file, const Elf64_Ehdr *eHdr, const char *shStrTab_data) {
     int res = -1;
@@ -59,10 +85,12 @@ char get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_
             return 'W';
     }
 
-    if (sym->st_shndx == SHN_UNDEF)
+    if (sym->st_shndx == SHN_ABS) {
+        return 'a';
+    }
+    if (sym->st_shndx == SHN_UNDEF) {
         return 'U';
-    if (sym->st_shndx == SHN_ABS)
-        return 'A';
+    }
     if (sym->st_shndx == SHN_COMMON)
         return 'C';
 
@@ -72,8 +100,9 @@ char get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_
     }
     if (sec->sh_type == SHT_NOBITS)
         return ELF64_ST_BIND(sym->st_info) == STB_LOCAL ? 'b' : 'B';
-    if (sec->sh_flags & SHF_EXECINSTR)
+    if (sec->sh_flags & SHF_EXECINSTR) {
         return ELF64_ST_BIND(sym->st_info) == STB_LOCAL ? 't' : 'T';
+    }
     if (sec->sh_flags & SHF_WRITE)
         return ELF64_ST_BIND(sym->st_info) == STB_LOCAL ? 'd' : 'D';
     if (!(sec->sh_flags & SHF_WRITE))
@@ -87,7 +116,7 @@ void print_symbol(const uint8_t *file, const Elf64_Ehdr *eHdr, const Elf64_Sym *
 
     char letter = get_symbol_letter(file, eHdr, sym);
 
-    uint8_t rendering = parse_letter(letter);  
+    uint8_t rendering = parse_letter(letter); 
 
     if (rendering == PRINT) {
         print_value(symbol.symTab->st_value);
@@ -155,7 +184,14 @@ bool print_all_symbols(uint8_t *file, const Elf64_Ehdr *eHdr, int symtabNdx) {
         // print_sym(effectiveSymTab);
     }
 
-    sort_symbols_tab(symbols, symTab->sh_size / symTab->sh_entsize);
+    if (nm_args.p == false) {
+        if (nm_args.r == false) {
+            sort_symbols_tab(symbols, symTab->sh_size / symTab->sh_entsize);
+        }
+        else {
+            reverse_sort_symbols_tab(symbols, symTab->sh_size / symTab->sh_entsize);
+        }
+    }
 
     for (int i = 0; i < (int)(symTab->sh_size / symTab->sh_entsize); i++) {
         if (symbols[i].name && symbols[i].name[0] != 0) {

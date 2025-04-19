@@ -26,6 +26,32 @@ void sort_symbols_tab_32(t_symbol_32 symbols[], int nb_entry) {
     }
 }
 
+bool is_reverse_sorted_32(t_symbol_32 symbols[], int nb_entry) {
+    for (int i = 1; i < nb_entry; i++) {
+        if (str_comp(symbols[i - 1].name, symbols[i].name) < 0)
+            return false;
+    }
+    return true;
+}
+
+void reverse_sort_symbols_tab_32(t_symbol_32 symbols[], int nb_entry) {
+
+    int i = 1;
+    while (!is_reverse_sorted_32(symbols, nb_entry)) {
+        if (i == nb_entry) {
+            i = 1;
+        }
+
+        if (str_comp(symbols[i - 1].name, symbols[i].name) < 0) {
+            t_symbol_32 tmp = symbols[i - 1];
+            symbols[i - 1] = symbols[i];
+            symbols[i] = tmp;
+        }
+
+        i++;
+    }
+}
+
 
 int find_symtab_32(uint8_t *file, const Elf32_Ehdr *eHdr, const char *shStrTab_data) {
     int res = -1;
@@ -59,10 +85,12 @@ char get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf
             return 'W';
     }
 
-    if (sym->st_shndx == SHN_UNDEF)
+    if (sym->st_shndx == SHN_ABS) {
+        return 'a';
+    }
+    if (sym->st_shndx == SHN_UNDEF) {
         return 'U';
-    if (sym->st_shndx == SHN_ABS)
-        return 'A';
+    }
     if (sym->st_shndx == SHN_COMMON)
         return 'C';
 
@@ -72,8 +100,9 @@ char get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf
     }
     if (sec->sh_type == SHT_NOBITS)
         return ELF32_ST_BIND(sym->st_info) == STB_LOCAL ? 'b' : 'B';
-    if (sec->sh_flags & SHF_EXECINSTR)
+    if (sec->sh_flags & SHF_EXECINSTR) {
         return ELF32_ST_BIND(sym->st_info) == STB_LOCAL ? 't' : 'T';
+    }
     if (sec->sh_flags & SHF_WRITE)
         return ELF32_ST_BIND(sym->st_info) == STB_LOCAL ? 'd' : 'D';
     if (!(sec->sh_flags & SHF_WRITE))
@@ -98,7 +127,7 @@ void print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sy
 
     char letter = get_symbol_letter_32(file, eHdr, sym);
 
-    uint8_t rendering = parse_letter(letter);  
+    uint8_t rendering = parse_letter(letter); 
 
     if (rendering == PRINT) {
         print_value_32(symbol.symTab->st_value);
@@ -137,7 +166,7 @@ bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx) 
     }
     const char *strtab = (const char *)(file + strTab_section->sh_offset);
 
-    t_symbol_32 *symbols = malloc((symTab->sh_size / symTab->sh_entsize) * sizeof(t_symbol_32));
+    t_symbol_32 *symbols = malloc(symTab->sh_size / symTab->sh_entsize * sizeof(t_symbol_32));
     if (!symbols) {
         ft_putstr_fd("Ran out of memory\n", 2);
         return 1;
@@ -145,7 +174,7 @@ bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx) 
 
     // printf("%ld %ld\n", symTab->sh_size, sizeof(t_symbol_32));
 
-    ft_memset(symbols, 0, (symTab->sh_size / symTab->sh_entsize) * sizeof(t_symbol_32));
+    ft_memset(symbols, 0, symTab->sh_size / symTab->sh_entsize * sizeof(t_symbol_32));
 
     for (long unsigned int offset = 0, counter = 0; offset < symTab->sh_size; offset += 16, counter++) {
         const Elf32_Sym *effectiveSymTab = (Elf32_Sym *)(file + symTab->sh_offset + offset);
@@ -162,11 +191,18 @@ bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx) 
         }
         symbols[counter].name = (char *)name;
         symbols[counter].symTab = effectiveSymTab;
-        // print_symbol(file, eHdr, effectiveSymTab, symbols[counter]);
+        // print_symbol_32(file, eHdr, effectiveSymTab, symbols[counter]);
         // print_sym(effectiveSymTab);
     }
 
-    sort_symbols_tab_32(symbols, symTab->sh_size / symTab->sh_entsize);
+    if (nm_args.p == false) {
+        if (nm_args.r == false) {
+            sort_symbols_tab_32(symbols, symTab->sh_size / symTab->sh_entsize);
+        }
+        else {
+            reverse_sort_symbols_tab_32(symbols, symTab->sh_size / symTab->sh_entsize);
+        }
+    }
 
     for (int i = 0; i < (int)(symTab->sh_size / symTab->sh_entsize); i++) {
         if (symbols[i].name && symbols[i].name[0] != 0) {

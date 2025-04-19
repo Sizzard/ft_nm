@@ -119,6 +119,15 @@ t_argument	*ft_lstnew_arg(char *content)
 	return (lst);
 }
 
+size_t len_arg_lst(t_argument *arg) {
+	size_t i = 0;
+	while(arg) {
+		arg = arg->next;
+		i++;
+	}
+	return i;
+}
+
 void print_lst_arg(t_argument *arg) {
     for (t_argument *tmp = arg; tmp; tmp = tmp->next) {
     	write(1, tmp->arg, ft_lst_strlen(tmp->arg));

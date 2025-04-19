@@ -32,5 +32,6 @@ t_argument	*ft_lstnew_arg(char *content);
 void        print_lst_arg(t_argument *arg);
 
 
+size_t      len_arg_lst(t_argument *arg);
 t_argparse  *ft_argparse(int ac, char **av);
 void        free_args(t_argparse *args);
