@@ -27,6 +27,9 @@ int ft_nm(char *filepath) {
     // printf("File size : %d\n", file_size);
 
     file = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (file == (void *) -1) {
+        return 1;
+    }
 
     close(fd);
 

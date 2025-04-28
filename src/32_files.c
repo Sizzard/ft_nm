@@ -77,7 +77,7 @@ int find_symtab_32(uint8_t *file, const Elf32_Ehdr *eHdr, const char *shStrTab_d
     return res;
 }
 
-char get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf32_Sym *sym) {
+char    get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf32_Sym *sym, const char *shStrTab_data) {
     if (ELF32_ST_BIND(sym->st_info) == STB_WEAK) {
         if (sym->st_shndx == SHN_UNDEF)
             return 'w';
@@ -95,9 +95,16 @@ char get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf
         return 'C';
 
     const Elf32_Shdr *sec = (Elf32_Shdr *)(file + eHdr->e_shoff + (sizeof(Elf32_Shdr) * sym->st_shndx));
+    const char *name = shStrTab_data + sec->sh_name;
+
     if (!is_within_file_range(file, (void *)sec)) {
             return '?';
     }
+
+    if (sec->sh_type == 17 && name && (ft_strcmp(name, ".debug") == 0 || ft_strcmp(name, ".group") == 0)) {
+        return 'n';
+    }
+    
     if (sec->sh_type == SHT_NOBITS)
         return ELF32_ST_BIND(sym->st_info) == STB_LOCAL ? 'b' : 'B';
     if (sec->sh_flags & SHF_EXECINSTR) {
@@ -123,9 +130,9 @@ void print_value_32(const unsigned int value) {
     print_hexa(value, 1);
 }
 
-void print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol) {
+void print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol, const char *shStrTab_data) {
 
-    char letter = get_symbol_letter_32(file, eHdr, sym);
+    char letter = get_symbol_letter_32(file, eHdr, sym, shStrTab_data);
 
     uint8_t rendering = parse_letter(letter); 
 
@@ -138,7 +145,7 @@ void print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sy
     }
 }
 
-bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx) {
+bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx, const char *shStrTab_data) {
 
     int symtab_offset = eHdr->e_shoff + (sizeof(Elf32_Shdr) * symtabNdx);
     if (symtab_offset >= file_size) {
@@ -206,7 +213,7 @@ bool print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx) 
 
     for (int i = 0; i < (int)(symTab->sh_size / symTab->sh_entsize); i++) {
         if (symbols[i].name && symbols[i].name[0] != 0) {
-            print_symbol_32(file, eHdr, symbols[i].symTab, symbols[i]);
+            print_symbol_32(file, eHdr, symbols[i].symTab, symbols[i], shStrTab_data);
         }
     }
     // printf("global %d, local %d, weak %d\n", STB_GLOBAL, STB_LOCAL, STB_WEAK);
@@ -245,6 +252,6 @@ bool handle_32_files(uint8_t *file) {
     }
     // printf("symtab ndx : %d\n", symtabNdx);
 
-    return print_all_symbols_32(file, eHdr, symtabNdx);
+    return print_all_symbols_32(file, eHdr, symtabNdx, shStrTab_data);
 
 }

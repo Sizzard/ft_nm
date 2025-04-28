@@ -61,17 +61,17 @@ int         get_number_len(unsigned int nb);
 int         str_comp(char *s1, char *s2);
 void        print_value(const unsigned int value);
 uint8_t     parse_letter(const unsigned char letter);
-char        get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_Sym *sym);
-void        print_symbol(const uint8_t *file, const Elf64_Ehdr *eHdr, const Elf64_Sym *sym, const t_symbol_64 symbol);
+char        get_symbol_letter(const uint8_t *file, const Elf64_Ehdr *eHdr ,const Elf64_Sym *sym, const char *strtab);
+void        print_symbol(const uint8_t *file, const Elf64_Ehdr *eHdr, const Elf64_Sym *sym, const t_symbol_64 symbol, const char *strtab);
 bool        is_sorted(t_symbol_64 symbols[], int nb_entry);
 void        sort_symbols_tab(t_symbol_64 symbols[], int nb_entry);
 
 bool        is_sorted_32(t_symbol_32 symbols[], int nb_entry);
 void        sort_symbols_tab_32(t_symbol_32 symbols[], int nb_entry);
 int         find_symtab_32(uint8_t *file, const Elf32_Ehdr *eHdr, const char *shStrTab_data);
-char        get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf32_Sym *sym);
-void        print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol);
-bool        print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx);
+char        get_symbol_letter_32(const uint8_t *file, const Elf32_Ehdr *eHdr ,const Elf32_Sym *sym, const char *shStrTab_data);
+void        print_symbol_32(const uint8_t *file, const Elf32_Ehdr *eHdr, const Elf32_Sym *sym, const t_symbol_32 symbol, const char *shStrTab_data);
+bool        print_all_symbols_32(uint8_t *file, const Elf32_Ehdr *eHdr, int symtabNdx, const char *shStrTab_data);
 
 bool        is_within_file_range(const uint8_t *file, void *ptr);
 
